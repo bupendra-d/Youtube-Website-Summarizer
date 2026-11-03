@@ -1,0 +1,9 @@
+streamlit
+python-dotenv
+validators
+youtube-transcript-api
+langchain-groq
+langchain-classic
+langchain-community
+langchain-core
+unstructured
