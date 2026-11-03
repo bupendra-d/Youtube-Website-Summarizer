@@ -4,7 +4,7 @@ An AI-powered application that summarizes YouTube videos and website content usi
 
 ## Live Demo
 
-[Try the YouTube & Website Summarizer](YOUR_STREAMLIT_APP_LINK)
+[Try the YouTube & Website Summarizer](https://youtube-website-summarizer-fgpxwqp68axteprsxd76ro.streamlit.app/)
 
 ## Features
 

@@ -8,3 +8,4 @@ langchain-groq
 langchain-classic
 langchain-core
 langchain-text-splitters
+transformers
