@@ -1,16 +1,18 @@
 import os
 import validators
+import requests
 import streamlit as st
 
 from dotenv import load_dotenv
+from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from youtube_transcript_api import YouTubeTranscriptApi
 
 from langchain_groq import ChatGroq
 from langchain_classic.prompts import PromptTemplate
 from langchain_classic.chains.summarize import load_summarize_chain
-from langchain_community.document_loaders import UnstructuredURLLoader
 from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
 # Configuration
@@ -88,6 +90,32 @@ def get_youtube_transcript(video_id):
     return " ".join(item.text for item in fetched)
 
 
+# Extract Website Content
+def get_website_content(url):
+    response = requests.get(
+        url,
+        headers={"User-Agent": "Mozilla/5.0"},
+        timeout=20
+    )
+
+    response.raise_for_status()
+
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    for tag in soup([
+        "script", "style", "noscript", "svg",
+        "nav", "footer", "header", "aside", "form"
+    ]):
+        tag.decompose()
+
+    content = soup.get_text(separator="\n", strip=True)
+
+    if not content.strip():
+        raise ValueError("Unable to extract website content.")
+
+    return content
+
+
 # Summarize Content
 if st.button("Summarize Content", type="primary"):
 
@@ -104,55 +132,58 @@ if st.button("Summarize Content", type="primary"):
         try:
             with st.spinner("Extracting content and generating summary..."):
 
+                # Initialize LLM
                 llm = ChatGroq(
                     model="openai/gpt-oss-20b",
                     groq_api_key=os.getenv("GROQ_API_KEY")
                 )
 
+                # Load YouTube Transcript or Website Content
                 video_id = extract_video_id(url.strip())
 
                 if video_id:
                     content = get_youtube_transcript(video_id)
 
-                    if not content.strip():
-                        raise ValueError("No transcript available.")
-
-                    docs = [
-                        Document(
-                            page_content=content,
-                            metadata={"source": url}
-                        )
-                    ]
-
                 else:
-                    loader = UnstructuredURLLoader(
-                        urls=[url.strip()],
-                        headers={"User-Agent": "Mozilla/5.0"}
+                    content = get_website_content(url.strip())
+
+                if not content.strip():
+                    raise ValueError("No content available to summarize.")
+
+                docs = [
+                    Document(
+                        page_content=content,
+                        metadata={"source": url.strip()}
                     )
+                ]
 
-                    docs = loader.load()
+                # Split Content into Chunks
+                splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=8000,
+                    chunk_overlap=500
+                )
 
-                    if not docs or not any(
-                        doc.page_content.strip() for doc in docs
-                    ):
-                        raise ValueError(
-                            "Unable to extract website content."
-                        )
-                    
+                docs = splitter.split_documents(docs)
+
+                # Map-Reduce Summarization
                 chain = load_summarize_chain(
                     llm=llm,
                     chain_type="map_reduce",
                     map_prompt=prompt,
                     combine_prompt=prompt
-                    )
-                    
+                )
+
                 response = chain.invoke({
                     "input_documents": docs
-                    })
-                    
+                })
+
+                # Display Summary
                 st.success("Summary generated successfully!")
                 st.subheader("Summary")
                 st.write(response["output_text"])
-                    
+
+        except requests.exceptions.RequestException as e:
+            st.error(f"Website extraction failed: {e}")
+
         except Exception as e:
             st.error(f"Unable to summarize content: {e}")

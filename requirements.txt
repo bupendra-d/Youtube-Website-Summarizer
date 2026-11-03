@@ -1,9 +1,10 @@
 streamlit
 python-dotenv
 validators
+requests
+beautifulsoup4
 youtube-transcript-api
 langchain-groq
 langchain-classic
-langchain-community
 langchain-core
-unstructured
+langchain-text-splitters
