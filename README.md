@@ -4,7 +4,15 @@ An AI-powered application that summarizes YouTube videos and website content usi
 
 ## Live Demo
 
-[Try the YouTube & Website Summarizer](https://youtube-website-summarizer-fgpxwqp68axteprsxd76ro.streamlit.app/)
+[Try the YouTube & Website Summarizer](https://youtube-website-summarizer-m7e27sfw6xkwkabumpwilg.streamlit.app/)
+
+### Deployment Note
+
+The live application currently supports **website summarization**.
+
+YouTube summarization is available when running the application locally. However, transcript retrieval may be restricted on Streamlit Community Cloud due to YouTube's IP-based access restrictions.
+
+To use the complete functionality, including YouTube video summarization in English and Hindi, follow the local setup instructions below.
 
 ## Features
 
