@@ -6,14 +6,6 @@ An AI-powered application that summarizes YouTube videos and website content usi
 
 [Try the YouTube & Website Summarizer](https://youtube-website-summarizer-m7e27sfw6xkwkabumpwilg.streamlit.app/)
 
-### Deployment Note
-
-The live application currently supports **website summarization**.
-
-YouTube summarization is available when running the application locally. However, transcript retrieval may be restricted on Streamlit Community Cloud due to YouTube's IP-based access restrictions.
-
-To use the complete functionality, including YouTube video summarization in English and Hindi, follow the local setup instructions below.
-
 ## Features
 
 - Summarizes YouTube videos and website content.
@@ -29,8 +21,8 @@ To use the complete functionality, including YouTube video summarization in Engl
 - **Python** – Core programming language
 - **Streamlit** – Web application interface
 - **LangChain** – LLM integration and summarization
-- **Groq** – LLM inference using GPT-OSS 20B
-- **YouTube Transcript API** – YouTube transcript extraction
+- **Groq** – LLM inference using GPT-OSS 20B / 120B
+- **Supadata API** – YouTube transcript extraction
 - **BeautifulSoup** – Website content extraction
 - **Requests** – HTTP requests
 - **Recursive Character Text Splitter** – Text chunking
@@ -66,11 +58,12 @@ pip install -r requirements.txt
 
 Create a `.env` file in the project directory:
 
-```env
 GROQ_API_KEY=your_groq_api_key
-```
+SUPADATA_API_KEY=your_supadata_api_key
 
-Get your API key from [Groq Console](https://console.groq.com/keys).
+Get your API keys from:
+- [Groq Console](https://console.groq.com/keys)
+- [Supadata](https://supadata.ai/)
 
 **5. Run the application**
 
@@ -84,11 +77,10 @@ Open `http://localhost:8501` in your browser.
 
 The application is deployed using Streamlit Community Cloud.
 
-Configure your `GROQ_API_KEY` under the application's **Settings → Secrets**:
+Configure the following secrets under your Streamlit application's **Settings → Secrets**:
 
-```toml
 GROQ_API_KEY = "your_groq_api_key"
-```
+SUPADATA_API_KEY = "your_supadata_api_key"
 
 The API key is securely managed through environment variables and is not exposed in the application interface.
 
