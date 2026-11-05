@@ -32,7 +32,7 @@ url = st.text_input("Enter YouTube or Website URL")
 # Summarization Prompt
 prompt = PromptTemplate(
     template="""
-    Summarize the following content in approximately 300 words.
+    Summarize the following content in approximately 500 words.
     Include all important points and key concepts.
     Write the summary in clear, simple English.
 
@@ -64,30 +64,36 @@ def extract_video_id(url):
 
 # Extract YouTube Transcript
 def get_youtube_transcript(video_id):
-    api = YouTubeTranscriptApi()
-    transcripts = api.list(video_id)
 
-    try:
-        transcript = transcripts.find_transcript(["en", "hi"])
+    api_key = os.getenv("SUPADATA_API_KEY")
 
-    except Exception:
-        available = list(transcripts)
+    if not api_key:
+        raise ValueError("Supadata API key not found.")
 
-        translatable = next(
-            (item for item in available if item.is_translatable),
-            None
-        )
+    video_url = f"https://www.youtube.com/watch?v={video_id}"
 
-        if not translatable:
-            raise ValueError(
-                "No suitable transcript is available for this video."
-            )
+    response = requests.get(
+        "https://api.supadata.ai/v1/transcript",
+        params={
+            "url": video_url,
+            "text": "true"
+        },
+        headers={
+            "x-api-key": api_key
+        },
+        timeout=60
+    )
 
-        transcript = translatable.translate("en")
+    response.raise_for_status()
 
-    fetched = transcript.fetch()
+    data = response.json()
 
-    return " ".join(item.text for item in fetched)
+    transcript = data.get("content", "")
+
+    if not transcript:
+        raise ValueError("No transcript available.")
+
+    return transcript
 
 
 # Extract Website Content
