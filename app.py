@@ -140,7 +140,7 @@ if st.button("Summarize Content", type="primary"):
 
                 # Initialize LLM
                 llm = ChatGroq(
-                    model="openai/gpt-oss-20b",
+                    model="openai/gpt-oss-120b",
                     groq_api_key=os.getenv("GROQ_API_KEY")
                 )
 
@@ -165,8 +165,8 @@ if st.button("Summarize Content", type="primary"):
 
                 # Split Content into Chunks
                 splitter = RecursiveCharacterTextSplitter(
-                    chunk_size=8000,
-                    chunk_overlap=500
+                    chunk_size=4000,
+                    chunk_overlap=200
                 )
 
                 docs = splitter.split_documents(docs)
